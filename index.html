@@ -262,7 +262,7 @@
 
 <div id="intro-screen" class="fixed inset-0 z-[200] flex flex-col justify-between bg-gradient-to-b from-[#02132a] to-[#01060f] p-12 sharp-edge overflow-hidden">
     <video id="intro-video" class="absolute inset-0 w-full h-full object-cover opacity-45 z-0" autoplay loop muted playsinline>
-        <source src="../video/COVER.mp4.mp4" type="video/mp4">
+        <source src="video/COVER.mp4.mp4" type="video/mp4">
     </video>
     <div class="absolute inset-0 bg-gradient-to-b from-[#02132a]/80 via-[#01060f]/60 to-[#01060f]/95 z-10 pointer-events-none"></div>
 
@@ -382,22 +382,22 @@
 <script>
     // 씬별 비디오 및 오디오 리소스 매핑 설정 테이블
      const MEDIA_ASSETS = {
-        S1:     { video: "../video/S1.mp4.mp4",     audio: "../tts/S1_t.mp3" },
-        S2:     { video: "../video/S2.mp4.mp4",     audio: "../tts/S2_t.mp3" },
-        S3:     { video: "../video/S3.mp4.mp4",     audio: "../tts/S3_Yeongu.mp3" },
-        S4:     { video: "../video/S4.mp4.mp4",     audio: "../tts/S4_t.mp3" },
-        S5:     { video: "../video/S5.mp4.mp4",     audio: "../tts/S5_r.mp3" },
-        S6:     { video: "../video/S6.mp4.mp4",     audio: "../tts/S6_t.mp3" },
-        S7:     { video: "../video/S7.mp4.mp4",     audio: "../tts/S7_t.mp3" },
-        RE_S4:  { video: "../video/S10.mp4.mp4",  audio: "../tts/RE_S4.mp3" },
-        S8:     { video: "../video/S8.mp4.mp4",     audio: "../tts/S8_t.mp3" },
-        S9:     { video: "../video/S9.mp4.mp4",     audio: "../tts/S9_t.mp3" },
+        S1:     { video: "video/S1.mp4.mp4",     audio: "tts/S1_t.mp3" },
+        S2:     { video: "video/S2.mp4.mp4",     audio: "tts/S2_t.mp3" },
+        S3:     { video: "video/S3.mp4.mp4",     audio: "tts/S3_Yeongu.mp3" },
+        S4:     { video: "video/S4.mp4.mp4",     audio: "tts/S4_t.mp3" },
+        S5:     { video: "video/S5.mp4.mp4",     audio: "tts/S5_r.mp3" },
+        S6:     { video: "video/S6.mp4.mp4",     audio: "tts/S6_t.mp3" },
+        S7:     { video: "video/S7.mp4.mp4",     audio: "tts/S7_t.mp3" },
+        RE_S4:  { video: "video/S10.mp4.mp4",  audio: "tts/RE_S4.mp3" },
+        S8:     { video: "video/S8.mp4.mp4",     audio: "tts/S8_t.mp3" },
+        S9:     { video: "video/S9.mp4.mp4",     audio: "tts/S9_t.mp3" },
         
         // 특수 상황 및 엔딩 멀티미디어 맵
-        G_OVER: { video: "../video/S11.mp4.mp4", audio: "../tts/RE_S4_t.mp3" },
-        END_A:  { video: "../video/END_A.mp4.mp4",  audio: "../tts/S9_Susong.mp3" },
-        END_B:  { video: "../video/END_B.mp4.mp4",  audio: "../tts/S8_main.mp3" },
-        END_C:  { video: "../video/END_C.mp4.mp4",  audio: "../tts/S7_Susong.mp3" }
+        G_OVER: { video: "video/S11.mp4.mp4", audio: "tts/RE_S4_t.mp3" },
+        END_A:  { video: "video/END_A.mp4.mp4",  audio: "tts/S9_Susong.mp3" },
+        END_B:  { video: "video/END_B.mp4.mp4",  audio: "tts/S8_main.mp3" },
+        END_C:  { video: "video/END_C.mp4.mp4",  audio: "tts/S7_Susong.mp3" }
     };
 
     const gameState = {
