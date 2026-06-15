@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>별주부전: 유전자 오디세이 (Biotech Interactive SF)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&family=Black+Han+Sans&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --toxic-green: #00ff66;
+            --menacing-red: #ff3333;
+            --electric-purple: #bd00ff;
+            --ocean-blue: #0055ff;
+            --deep-abyss: #021124;
+            --glass-bg: rgba(6, 26, 48, 0.85);
+            --glass-border: rgba(0, 255, 102, 0.35);
+        }
+
+        body {
+            background-color: #020710;
+            color: #e2e8f0;
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0; padding: 0;
+            overflow: hidden; /* 스크롤 강제 차단 */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 50% 30%, #032b5e 0%, #010a17 100%),
+                linear-gradient(180deg, rgba(0, 255, 102, 0.02) 0%, transparent 100%);
+            background-blend-mode: screen;
+        }
+
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        .black-han { font-family: 'Black Han Sans', sans-serif; }
+        .mono { font-family: 'Share Tech Mono', monospace; }
+
+        .sharp-edge {
+            border-radius: 0px !important;
+        }
+
+        .wet-pavement {
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 35px;
+            background: linear-gradient(to top, rgba(0, 85, 255, 0.3), rgba(0, 255, 102, 0.15), transparent);
+            filter: blur(4px);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        @keyframes hologram-pulse {
+            0%, 100% { opacity: 0.2; transform: scale(1); filter: brightness(1); }
+            50% { opacity: 0.45; transform: scale(1.03); filter: brightness(1.2); }
+        }
+        .smog-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 85, 255, 0.25), rgba(0, 255, 102, 0.08), transparent 85%);
+            pointer-events: none;
+            z-index: 2;
+            animation: hologram-pulse 6s infinite ease-in-out;
+        }
+
+        .main-display {
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(3, 15, 31, 0.95);
+            border: 1px solid rgba(0, 255, 102, 0.35);
+            margin: 0.4rem auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            height: 0; 
+            min-height: 0;
+            box-shadow: 0 0 45px rgba(0, 85, 255, 0.25);
+        }
+
+        /* 이미지 뷰포트 영역의 높이 비율을 60%로 파격적으로 확장 */
+        .image-viewport {
+            width: 100%;
+            height: 60%; 
+            background: #000;
+            background-image: radial-gradient(circle at center, #03152d 0%, #000 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid rgba(0, 85, 255, 0.5);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 102, 0.12);
+            position: absolute;
+            top: 0;
+            animation: scan 6s linear infinite;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* 하단 대사 영역 비율을 40%로 조율하여 울트라 콤팩트 뷰 수립 */
+        .hud-metal {
+            background: linear-gradient(180deg, rgba(8, 20, 38, 0.98) 0%, rgba(4, 10, 20, 0.99) 100%);
+            border-top: 1px solid rgba(0, 255, 102, 0.2);
+            border-bottom: 2px solid #0055ff;
+            box-shadow: inset 0 1px 4px rgba(255,255,255,0.05);
+            position: relative;
+            height: 40%;
+        }
+
+        /* 여백과 폰트 크기 미세 조정을 통한 글자 잘림 완전 방지 */
+        #game-text {
+            margin-bottom: 0.5rem;
+            line-height: 1.55;
+            font-size: 0.95rem;
+            color: rgba(228, 235, 245, 0.98);
+            overflow-y: auto;
+            max-height: 100%;
+            padding-right: 6px;
+        }
+
+        #game-text::-webkit-scrollbar {
+            width: 4px;
+        }
+        #game-text::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        #game-text::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 102, 0.3);
+            border-radius: 2px;
+        }
+
+        .btn-biotech {
+            position: relative;
+            background: rgba(3, 15, 32, 0.92);
+            border: 1px solid rgba(0, 255, 102, 0.35);
+            color: var(--toxic-green);
+            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0.65rem 1rem;
+            margin-bottom: 0.3rem;
+            text-align: left;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+            font-size: 0.88rem;
+        }
+
+        .btn-biotech::before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 102, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-biotech:hover:not(:disabled) {
+            background: rgba(0, 255, 102, 0.08);
+            border-color: var(--toxic-green);
+            box-shadow: 0 0 12px rgba(0, 255, 102, 0.25);
+            transform: translateX(2px);
+        }
+
+        .btn-biotech:hover::before {
+            left: 100%;
+        }
+
+        .btn-biotech:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-selected {
+            background: rgba(0, 255, 102, 0.25) !important;
+            border-color: var(--toxic-green) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.45) !important;
+        }
+
+        .btn-hidden-purple {
+            border-color: rgba(188, 0, 255, 0.4) !important;
+            color: #bc13fe !important;
+            background: rgba(188, 0, 254, 0.08) !important;
+        }
+
+        .btn-hidden-purple:hover:not(:disabled) {
+            background: rgba(188, 0, 254, 0.12) !important;
+            box-shadow: 0 0 15px rgba(188, 0, 254, 0.3) !important;
+        }
+
+        .stat-badges { display: flex; gap: 0.3rem; pointer-events: none; }
+        .badge {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; font-weight: 700;
+            padding: 1px 4px; border: 1px solid currentColor;
+            background: rgba(8, 9, 10, 0.9);
+        }
+        .badge-sync { color: #bc13fe; border-color: rgba(188, 0, 254, 0.4); }
+        .badge-noise { color: #ff3333; border-color: rgba(255, 51, 51, 0.4); }
+        .badge-integrity { color: #00ff66; border-color: rgba(0, 255, 102, 0.4); }
+
+        .gauge-container {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes spring-bounce {
+            0% { transform: scale(1); }
+            35% { transform: scale(0.995); }
+            70% { transform: scale(1.002); }
+            100% { transform: scale(1); }
+        }
+        .spring-active {
+            animation: spring-bounce 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        /* 미디어 레이어 최적화 스타일 */
+        .scene-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body id="main-body" class="flex flex-col h-screen overflow-hidden">
+
+<audio id="global-audio-player" class="hidden" preload="auto"></audio>
+
+<header class="flex-shrink-0 sharp-edge border-b border-[#0055ff]/40">
+    <h1 class="black-han text-2xl text-white tracking-[0.2em] flex justify-center items-center h-[10vh] gap-4">
+        <span class="text-[10px] orbitron text-cyan-400 opacity-80">BIOMETRIC_CONTROL</span>
+        별주부전: <span class="orbitron text-[#00ff66]">GENETIC ODYSSEY 2099</span>
+        <span class="text-[10px] orbitron text-cyan-400 opacity-80">BIOTECH_NODE_V4</span>
+    </h1>
+</header>
+
+<div id="intro-screen" class="fixed inset-0 z-[200] flex flex-col justify-between bg-gradient-to-b from-[#02132a] to-[#01060f] p-12 sharp-edge overflow-hidden">
+    <video id="intro-video" class="absolute inset-0 w-full h-full object-cover opacity-45 z-0" autoplay loop muted playsinline>
+        <source src="../video/COVER.mp4.mp4" type="video/mp4">
+    </video>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#02132a]/80 via-[#01060f]/60 to-[#01060f]/95 z-10 pointer-events-none"></div>
+
+    <div class="flex justify-between items-start w-full border-b border-[#0055ff]/35 pb-4 relative z-20">
+        <div class="flex flex-col text-left">
+            <span class="mono text-[10px] text-cyan-400 tracking-widest font-bold">// SYSTEM_OPERATOR_SIGN_IN</span>
+            <span class="mono text-sm text-stone-200 font-bold tracking-wider mt-1">25730057 이지원</span>
+        </div>
+        <div class="flex flex-col text-right">
+            <span class="mono text-[10px] text-[#00ff66] tracking-widest font-bold">// IMMUNOLOGICAL_CLEARANCE</span>
+            <span class="mono text-xs text-[#00ff66] font-bold tracking-widest mt-1">BIOPHASE_04_GRANTED</span>
+        </div>
+    </div>
+
+    <div class="text-center my-auto relative z-20">
+        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 opacity-20 blur-2xl"></div>
+        <span class="mono text-[11px] text-[#00ff66] tracking-[0.6em] block mb-3 font-semibold uppercase">// NEURAL BIOTECH INTERACTIVE SCENARIO //</span>
+        <h2 class="black-han text-7.5xl md:text-9xl text-stone-100 mb-4 tracking-tighter drop-shadow-[0_0_20px_rgba(0,255,102,0.45)]">별주부전</h2>
+        <p class="orbitron text-cyan-400 tracking-[0.5em] text-xs md:text-sm font-light uppercase">GENETIC ODYSSEY PROJECT v4.0</p>
+    </div>
+
+    <div class="border-t border-[#0055ff]/30 pt-6 w-full flex flex-col md:flex-row justify-between items-center gap-6 relative z-20">
+        <div class="flex gap-8 text-[11px] mono tracking-widest text-left">
+            <div class="flex flex-col">
+                <span class="text-stone-500 font-bold mb-1">세포 동화율</span>
+                <span class="text-[#bc13fe] font-bold text-sm">20%</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-stone-500 font-bold mb-1">생체 생존력</span>
+                <span class="text-[#00ff66] font-bold text-sm">100%</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-stone-500 font-bold mb-1">변이 위험도</span>
+                <span class="text-[#ff3333] font-bold text-sm">5%</span>
+            </div>
+        </div>
+
+        <button onclick="startGame()" class="btn-biotech px-16 py-4 orbitron text-base font-bold tracking-[0.3em] block w-full md:w-auto border-2 sharp-edge z-10">
+            [시스템 접속] : 선택 시 동화 시작
+        </button>
+    </div>
+</div>
+
+<div id="game-ui" class="hidden w-full max-w-5xl mx-auto flex flex-col items-center z-10 px-6 h-[90vh] overflow-hidden pb-2">
+    <div id="hud-container" class="hud-glass w-full p-3 grid grid-cols-4 gap-4 orbitron text-[10px] uppercase mt-2 sharp-edge">
+        <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between text-[#bc13fe] font-bold"><span>Cell Sync (동화율)</span><span id="stat-syncRate-val">20%</span></div>
+            <div class="gauge-container"><div id="gauge-syncRate" class="gauge-fill bg-[#bc13fe] shadow-[0_0_10px_#bc13fe]"></div></div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between text-[#00ff66] font-bold"><span>Health (생존력)</span><span id="stat-integrityLevel-val">100%</span></div>
+            <div class="gauge-container"><div id="gauge-integrityLevel" class="gauge-fill bg-[#00ff66] shadow-[0_0_10px_#00ff66]"></div></div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between text-[#ff3333] font-bold"><span>Mutation (위험도)</span><span id="stat-noiseLevel-val">5%</span></div>
+            <div class="gauge-container"><div id="gauge-noiseLevel" class="gauge-fill bg-[#ff3333] shadow-[0_0_10px_#ff3333]"></div></div>
+        </div>
+        <div class="flex flex-col gap-1 bg-black/40 p-1 px-2 border border-blue-500/30">
+            <div class="flex justify-between text-cyan-400 font-bold"><span>Time Left (남은 시간)</span><span id="stat-turn-val">10 T</span></div>
+            <div class="flex justify-between text-yellow-400 font-bold"><span>Bio Data (유전자 분석)</span><span id="stat-analysis-val">0%</span></div>
+        </div>
+    </div>
+
+    <div class="main-display sharp-edge" id="main-panel">
+        <div class="image-viewport">
+            <video id="viewport-video" class="scene-video" autoplay loop muted playsinline></video>
+            
+            <div class="smog-overlay"></div>
+            <div class="wet-pavement"></div>
+            <div class="scanline"></div>
+            <div id="image-placeholder" class="text-[#00ff66]/90 text-sm orbitron font-bold tracking-widest text-center px-12 z-10 hidden"></div>
+            <div class="absolute top-4 left-6 flex items-center gap-2 z-10">
+                <div class="w-2 h-2 rounded-full bg-[#00ff66] animate-pulse"></div>
+                <span id="video-stream-status" class="orbitron text-[9px] text-[#00ff66] tracking-[0.1em]">BIO_LINK_STABLE</span>
+            </div>
+        </div>
+
+        <footer class="grid grid-cols-3 bg-[#0a1120] relative z-20 flex-shrink-0 sharp-edge hud-metal">
+            
+            <div class="p-4 border-r border-[#0055ff]/25 flex flex-col justify-between select-none h-full">
+                <div class="flex flex-col gap-1">
+                    <span class="mono text-[8px] text-stone-500">// SYSTEM_LOG</span>
+                    <div id="system-alerts" class="text-[9px] text-red-500 font-bold space-y-1">
+                        </div>
+                </div>
+                <div>
+                    <span id="scene-title" class="orbitron text-cyan-400 font-semibold text-[10px] mb-1 tracking-[0.3em] block">STAGE_01</span>
+                    <div class="h-[1px] w-20 bg-cyan-500/35 mt-1"></div>
+                </div>
+                <div class="text-[8px] text-cyan-500/50 mono font-bold">BIOMETRIC CONSOLE v4.0</div>
+            </div>
+
+            <div id="narrative-scroller" class="p-4 border-r border-[#0055ff]/25 flex flex-col justify-between overflow-hidden h-full">
+                <div id="game-text" class="flex-1 pr-1 text-sm text-stone-200 leading-relaxed font-light"></div>
+            </div>
+
+            <div class="p-4 flex flex-col justify-between h-full">
+                <div class="h-2 opacity-25"></div>
+                <div id="choices-container" class="flex flex-col gap-1.5 flex-1 justify-center"></div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<div id="ending-screen" class="hidden fixed inset-0 z-[300] bg-gradient-to-b from-[#02132a] to-[#01060f] flex flex-col items-center justify-center p-12 text-center sharp-edge">
+    <video id="ending-video" class="absolute inset-0 w-full h-full object-cover opacity-30 z-0" autoplay loop muted playsinline></video>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#02132a]/80 to-[#01060f]/95 z-10"></div>
+
+    <div class="relative z-20 flex flex-col items-center justify-center">
+        <div class="orbitron text-[#00ff66] text-sm mb-6 tracking-[1em] opacity-60">CLINICAL FINAL REPORT</div>
+        <h2 id="end-title" class="black-han text-5xl text-white mb-8"></h2>
+        <p id="end-desc" class="text-blue-100/70 max-w-3xl mb-16 text-lg leading-relaxed font-light"></p>
+        <button onclick="location.reload()" class="btn-biotech px-16 py-4 orbitron block mx-auto w-auto text-lg border-2 sharp-edge">SYSTEM REBOOT</button>
+    </div>
+</div>
+
+<script>
+    // 씬별 비디오 및 오디오 리소스 매핑 설정 테이블
+     const MEDIA_ASSETS = {
+        S1:     { video: "../video/S1.mp4.mp4",     audio: "../tts/S1_t.mp3" },
+        S2:     { video: "../video/S2.mp4.mp4",     audio: "../tts/S2_t.mp3" },
+        S3:     { video: "../video/S3.mp4.mp4",     audio: "../tts/S3_Yeongu.mp3" },
+        S4:     { video: "../video/S4.mp4.mp4",     audio: "../tts/S4_t.mp3" },
+        S5:     { video: "../video/S5.mp4.mp4",     audio: "../tts/S5_r.mp3" },
+        S6:     { video: "../video/S6.mp4.mp4",     audio: "../tts/S6_t.mp3" },
+        S7:     { video: "../video/S7.mp4.mp4",     audio: "../tts/S7_t.mp3" },
+        RE_S4:  { video: "../video/S10.mp4.mp4",  audio: "../tts/RE_S4.mp3" },
+        S8:     { video: "../video/S8.mp4.mp4",     audio: "../tts/S8_t.mp3" },
+        S9:     { video: "../video/S9.mp4.mp4",     audio: "../tts/S9_t.mp3" },
+        
+        // 특수 상황 및 엔딩 멀티미디어 맵
+        G_OVER: { video: "../video/S11.mp4.mp4", audio: "../tts/RE_S4_t.mp3" },
+        END_A:  { video: "../video/END_A.mp4.mp4",  audio: "../tts/S9_Susong.mp3" },
+        END_B:  { video: "../video/END_B.mp4.mp4",  audio: "../tts/S8_main.mp3" },
+        END_C:  { video: "../video/END_C.mp4.mp4",  audio: "../tts/S7_Susong.mp3" }
+    };
+
+    const gameState = {
+        sync: 20,
+        integ: 100,
+        noise: 5,
+        turn: 10,
+        genetic_analysis: 0,
+        rabbit: null,
+        mission: null,
+        isTyping: false,
+        isTransitioning: false
+    };
+
+    const scenes = {
+        S1: {
+            title: "STAGE_01: ENTRY (시스템 부팅 및 균열)",
+            img: "용궁 코어실 입구 [STEALTH]",
+            getDesc: () => {
+                return `<b>[용궁 제어실 하층부]</b> 녹색 배양액 연기가 뿜어 나온다. 냉각수가 흘러 축축한 바닥 위로 네온 점멸등이 차갑게 왜곡 반사된다.<br><br>
+                <b>용궁 AI:</b> "에이전트 거북이 K1, 10턴 내로 육지 연구소에서 원본 유전자 샘플을 확보하십시오."<br>
+                <b>거북이(K1):</b> "내 껍데기 회로를 태워가며 수송선을 몰게 하누만. 지상에 내리면 통제 기어부터 박살 내주지."`;
+            },
+            getChoices: () => [
+                { text: "[A] 출력 강화 (동기화 우선)", delta: { sync: 20, noise: 10, turn: -1 }, next: 'S2' },
+                { text: "[B] 정밀 잠항 (안정성 유지)", delta: { integ: 20, noise: -5, turn: -1 }, next: 'S2' }
+            ]
+        },
+        S2: {
+            title: "STAGE_02: INTRUSION (보안 구역 돌입)",
+            img: "연구소 외곽 격벽 인프라",
+            getDesc: () => {
+                let alertText = "";
+                if (gameState.noise >= 20) {
+                    alertText = `<span class="text-red-500 font-bold">[!] 변이 경보: 보안 드론 추적 활성화!</span><br>`;
+                }
+                return `<b>[연구소 격벽 외벽]</b> 장갑 슈트를 벽면에 밀착시킨다. 사이렌 조명이 젖은 노면 위로 왜곡을 뿜는다. ${alertText}<br>
+                <b>보안 AI:</b> "비인가 생체 장갑 슈트가 방화벽에 접촉 중입니다."<br>
+                <b>거북이(K1):</b> "레이저 스캔 라인 따위로 나를 묶어둘 것 같았나? 당장 열어라."`;
+            },
+            getChoices: () => [
+                { text: "[A] 방화벽 강제 해킹 다운", delta: { sync: 20, noise: 15, turn: -1 }, next: 'S3' },
+                { text: "[B] 은밀 잠입 및 우회기동", delta: { integ: 15, noise: -10, turn: -1 }, next: 'S3' }
+            ]
+        },
+        S3: {
+            title: "STAGE_03: ANALYSIS (유전자 분석실)",
+            img: "독성 에메랄드 탱크 구역",
+            getDesc: () => {
+                let alertText = "";
+                if (gameState.noise >= 30) {
+                    alertText = `<span class="text-red-500 font-bold">[!] 위협 경보: 요격 프로토콜 경고 작동! (마킹 분석 가이드 획득)</span><br>`;
+                }
+                return `<b>[분석실 배양 탱크]</b> 소음이 가득한 유리 뒤로 홀로그램 데이터가 명멸한다. ${alertText}<br>
+                <b>연구 단말기:</b> "데이터의 70%가 의도적 노이즈로 오염되어 있습니다."<br>
+                <b>거북이(K1):</b> "가짜를 뒤섞어 생명을 조작하는 게 지상인들의 방식인가? 진짜 코드를 당장 뱉어내라."`;
+            },
+            getChoices: () => [
+                { text: "[A] 리스크 감수 고속 스캔", delta: { sync: 15, noise: 20, turn: -1 }, next: 'S4' },
+                { text: "[B] 우회로 확보 환경 분석", delta: { integ: 15, noise: -10, turn: -1 }, next: 'S4' }
+            ]
+        },
+        S4: {
+            title: "STAGE_04: REPLICANT (복제 토끼 구역)",
+            img: "황금빛 유전자 저장실",
+            getDesc: () => {
+                let extraText = "";
+                if (gameState.sync >= 50) {
+                    extraText += `<span class="text-[#bc13fe] font-bold">[동화율 50 이상] 바코드 오류 식별 개시!</span><br>`;
+                }
+                if (gameState.integ >= 40) {
+                    extraText += `<span class="text-[#00ff66] font-bold">[생존력 40 이상] 생체 변이 주파수 포착 완료.</span><br>`;
+                }
+                return `<b>[복제 캡슐실]</b> 동일한 외형의 실험체들이 노란 수조를 부유한다. 이 중 단 하나만이 진짜 원본이다.<br>
+                ${extraText}<br>
+                <b>중앙 모니터:</b> "복제 무리 속에 오리지널 원형 개체가 은닉되어 있습니다."<br>
+                <b>거북이(K1):</b> "껍데기를 복제해 봤자 진짜는 숨길 수 없어. 내 눈은 절대로 속이지 못한다."`;
+            },
+            getChoices: () => [
+                { text: "[A] 분석기 전면 스캔", delta: { sync: 10, noise: 10, genetic_analysis: 40, turn: -1 }, next: 'S5' },
+                { text: "[B] 생체 거동 패턴 직접 관찰", delta: { integ: 10, noise: -5, genetic_analysis: 30, turn: -1 }, next: 'S5' }
+            ]
+        },
+        S5: {
+            title: "STAGE_05: ENCOUNTER (진짜 토끼 대면)",
+            img: "복제 캡슐 격리 특별 구역",
+            getDesc: () => {
+                return `<b>[진짜 토끼 격리실]</b> 기계 이식 흔적과 떨리는 안광을 가진 토끼(RB)가 거북이를 시험하는 듯한 손동작을 취한다.<br><br>
+                <b>진짜 토끼(RB):</b> "넌 날 구원자의 데이터 샘플로만 보는군? 내 간을 뜯어가면 난 살 수 있나?"<br>
+                <b>거북이(K1):</b> "난 임무를 수행한다. 하지만 네 눈 속 오류코드... 단순 데이터 버그 같지는 않군."`;
+            },
+            getChoices: () => [
+                { text: "[A] 진실 설득 및 협력", action: () => { gameState.rabbit = 'trust'; }, delta: { integ: 10, turn: -1 }, next: 'S6' },
+                { text: "[B] 거짓 정보 기만 및 강제 압송", action: () => { gameState.rabbit = 'deceive'; }, delta: { noise: 10, turn: -1 }, next: 'S6' },
+                { text: "[C] 답변 보류 및 파동 역관찰", action: () => { gameState.rabbit = 'observe'; }, delta: { sync: 10, turn: -1 }, next: 'S6' }
+            ]
+        },
+        S6: {
+            title: "STAGE_06: CONFLICT (가치관 충돌과 모순)",
+            img: "실험실 분석 터미널 메인 모니터",
+            getDesc: () => {
+                let extraText = "";
+                if (gameState.sync >= 60) {
+                    extraText = `<br><span class="text-purple-400 font-bold">[동화율 60 이상 정보] 용왕의 코어 결함은 세포 유전자 결핍이 아니라, 제어 연산 엔진 자체의 설계 결함이었습니다.</span>`;
+                }
+                return `<b>[단말기 보고서 수집]</b> 최후의 서열 해독 데이터가 도착하며, 도덕성과 지배 연산이 격돌한다.${extraText}<br><br>
+                <b>연구소 단말기:</b> "경고: 토끼 생체 샘플을 강제 채취할 경우 데이터 결함으로 복구율 0% 수렴."<br>
+                <b>거북이(K1):</b> "수송 강행은 무의미하다. 용왕을 구하려면 채취가 아니라 프로토콜의 패러다임을 바꿔야 한다."`;
+            },
+            getChoices: () => [
+                { text: "[A] 강행 채취 프로토콜 주입", action: () => { gameState.mission = 'force'; }, delta: { turn: -1 }, next: 'S7' },
+                { text: "[B] 공존 상생 매칭 프로토콜 제안", action: () => { gameState.mission = 'cooperate'; }, delta: { turn: -1 }, next: 'S7' },
+                { text: "[C] 데이터 시스템 전면 재검증 돌입", action: () => { gameState.mission = 'verify'; }, delta: { sync: 10, turn: -1 }, next: 'S7' }
+            ]
+        },
+        S7: {
+            title: "STAGE_07: DECISION CHECK (토끼 식별 판정)",
+            img: "주파수 일치화 대치 장치",
+            getDesc: () => {
+                let score = gameState.genetic_analysis + (gameState.sync * 0.5);
+                return `<b>[최종 서열 분석 결과]</b> 유전자 노드 매칭 수치 연산을 판정합니다. 허용 기준선은 70점입니다.<br><br>
+                <b>수송 가이드:</b> "현재 서열 일치 검출 완료율: ${score} / 70 점."<br>
+                <b>거북이(K1):</b> "수치 연산 정합 확인 개시. 결과 스트리밍 작동한다."`;
+            },
+            getChoices: () => {
+                let score = gameState.genetic_analysis + (gameState.sync * 0.5);
+                if (score >= 70) {
+                    return [{ text: "[검증 통과] S8 코어 구역 돌입", delta: {}, next: 'S8' }];
+                } else {
+                    return [{ text: "[검증 실패] RE_S4 시간 복귀 개시", delta: {}, next: 'RE_S4' }];
+                }
+            }
+        },
+        RE_S4: {
+            title: "RE_S4: TIME LOOP (자가 타임 루프 발생)",
+            img: "점멸하는 차원 동기화 터널",
+            getDesc: () => {
+                return `<b>[루프 역류 발생]</b> 유체 마킹 대조 불일치로 차원 왜곡 전송기가 역류 폭발을 개시합니다. 기동 전원에 중대한 과전류 대미지가 발생합니다.<br><br>
+                <b>차원 제어 AI:</b> "일치 연산 실격. 시공간을 복제 캡슐실(S4) 타임라인으로 회귀 조율합니다."<br>
+                <b>거북이(K1):</b> "남은 수송 시간(TURN)이 격감한다. 코어가 파괴되기 전에 오리지널을 정밀 격리하라!"`;
+            },
+            getChoices: () => [
+                { 
+                    text: "[A] 루프 전원 기동 (S4로 강제 복귀)", 
+                    action: () => {
+                        gameState.genetic_analysis = 0;
+                    }, 
+                    delta: { turn: -2 },
+                    next: 'S4' 
+                }
+            ]
+        },
+        S8: {
+            title: "STAGE_08: BOSS DEFIANCE (최종 대치)",
+            img: "연구소 메인 보안 벽면 AI 노드",
+            getDesc: () => {
+                return `<b>[보안 최상위 빔 노드]</b> 레이저 격벽이 회로를 불태울 압력으로 일제히 활성화된다.<br><br>
+                <b>실험실 메인 AI:</b> "비인가 에이전트의 데이터 반출을 완전 불허합니다. 분자 소거 빔 충전 개시."<br>
+                <b>거북이(K1):</b> "내 전뇌 껍데기가 통째로 녹아내려도, 데이터 전송은 멈추지 않는다!"`;
+            },
+            getChoices: () => {
+                if (gameState.noise >= 50 && gameState.sync < 90) {
+                    return [{ text: "[스텔스 파괴] 시스템 요격 격추 직면", delta: {}, next: 'IMMEDIATE_DESTRUCTION' }];
+                } else {
+                    return [{ text: "[A] 최종 돌파 기어 회피 기동", delta: { turn: -1 }, next: 'S9' }];
+                }
+            }
+        },
+        S9: {
+            title: "STAGE_09: CONSOLE REBOOT (마지막 시퀀스)",
+            img: "용궁 코어실 최종 수송 단말기",
+            getDesc: () => {
+                return `<b>[수송 엔진실]</b> 축적된 데이터와 생체 수송 데이터를 최종 노드에 바인딩합니다. 용왕의 맥동 압력이 급락하고 있습니다.<br><br>
+                <b>수송 단말기:</b> "에이전트 최종 동기 검출 완료. 선택된 누적 패치(rabbit, mission)에 근거해 제부팅을 승인합니다."<br>
+                <b>거북이(K1):</b> "전뇌 개방. 용궁의 심해 엔진을 가동하라!"`;
+            },
+            getChoices: () => [
+                { text: "[A] 엔딩 매트릭스 해제", delta: {}, next: 'DETERMINE_ENDING' }
+            ]
+        }
+    };
+
+    // 통합 멀티미디어 엔진 플레이어 제어 모듈
+    function playSceneMedia(sceneId) {
+        const videoElement = document.getElementById('viewport-video');
+        const audioElement = document.getElementById('global-audio-player');
+        const statusText = document.getElementById('video-stream-status');
+        const assets = MEDIA_ASSETS[sceneId];
+
+        if (!assets) return;
+
+        // 1. 영상 소스 교체 및 실행
+        if (videoElement && assets.video) {
+            videoElement.src = assets.video;
+            videoElement.load();
+            videoElement.play().catch(err => {
+                console.warn("비디오 자동 재생 일시 제한 (Muted 처리 검증 필요):", err);
+            });
+        }
+
+        // 2. TTS 음성 소스 교체 및 싱크 연동 실행
+        if (audioElement && assets.audio) {
+            audioElement.src = assets.audio;
+            audioElement.load();
+            audioElement.play().then(() => {
+                if (statusText) {
+                    statusText.innerText = "BIO_LINK_STABLE // AUDIO_STREAMING";
+                    statusText.className = "orbitron text-[9px] text-[#00ff66] tracking-[0.1em]";
+                }
+            }).catch(err => {
+                console.error("오디오 트랙 인스턴스 재생 차단됨:", err);
+                if (statusText) {
+                    statusText.innerText = "STREAM_CONNECTED // AUDIO_MUTED";
+                    statusText.className = "orbitron text-[9px] text-yellow-400 tracking-[0.1em]";
+                }
+            });
+        }
+    }
+
+    function checkSystemStatus() {
+        let textAlerts = document.getElementById('system-alerts');
+        if (textAlerts) textAlerts.innerHTML = "";
+
+        if (gameState.noise >= 20) {
+            let d = document.createElement('div');
+            d.className = "text-[#ff3333] tracking-widest animate-pulse";
+            d.innerText = "[!] NOISE >= 20: DRONE TRACING";
+            textAlerts.appendChild(d);
+        }
+        if (gameState.noise >= 30) {
+            let d = document.createElement('div');
+            d.className = "text-[#ff3333] font-bold tracking-widest";
+            d.innerText = "[!!] NOISE >= 30: AA WARNING";
+            textAlerts.appendChild(d);
+        }
+
+        if (gameState.noise >= 70) {
+            triggerEnding('G_OVER', "변이 위험도 임계값(70) 돌파: 보안 역추적 폭격.");
+            return true;
+        }
+        if (gameState.integ <= 0) {
+            triggerEnding('G_OVER', "생존력 소멸: 의체 통합 물리 파쇄.");
+            return true;
+        }
+        if (gameState.turn <= 0) {
+            triggerEnding('G_OVER', "수송 시간 소멸: 용왕 코어 완전 괴사.");
+            return true;
+        }
+        return false;
+    }
+
+    function determineFinalEnding() {
+        if (gameState.mission === 'force') {
+            triggerEnding('END_A', "토끼의 데이터 샘플을 무자비하게 강제 적출하여 귀환했습니다. 기계 세포 붕괴는 즉각 멈췄으나, 무참히 압송된 토끼는 연산 폐기물로 변환되어 사멸했습니다. 거북이는 최고의 군인으로 칭송받으나 그의 메인 프레임에는 지워지지 않는 영구적인 에러 로그가 축적되었습니다.");
+        } else if (gameState.rabbit === 'trust' && gameState.mission === 'cooperate') {
+            triggerEnding('END_B', "토끼와의 상호 교감에 근거한 완전한 신뢰를 전제로 지상-심해 간 무선 동화 패치를 이룩했습니다. 토끼는 자유를 수호했고, 용왕은 실시간 유기물 정화 데이터의 원격 교차 다운로드를 통해 복원됩니다. 극도로 차갑던 심해 인프라 위에 기적과도 같은 생태적 무결성이 활성화됩니다.");
+        } else if (gameState.mission === 'verify' && gameState.sync >= 60) {
+            triggerEnding('END_C', "데이터 분석 결과, 용왕의 병인은 유전자 복원 부족이 아니라 용궁 코어 인프라 자체를 지배하고 제어하던 독점 알고리즘의 치명적 설계 에러였음이 탄로 났습니다. 거북이는 즉시 기수를 돌려 부조리한 심해 지배 구조를 소멸시키기 위해 영구 자폭 심연으로 기수를 틀었습니다.");
+        } else {
+            triggerEnding('END_A', "토끼의 생체 데이터를 불완전하게 가공한 타협적 귀환을 단행했습니다. 용왕은 장치 수준의 단기 보존 연장만을 부여받았고, 거북이는 지우기 힘든 오류 기록을 짊어진 채 침전 수렴됩니다.");
+        }
+    }
+
+    function triggerEnding(endingId, customDesc = "") {
+        const endTitle = document.getElementById('end-title');
+        const endDesc = document.getElementById('end-desc');
+        const endingScreen = document.getElementById('ending-screen');
+        const endingVideo = document.getElementById('ending-video');
+        
+        // 엔딩 전용 미디어 연동 실행
+        const assets = MEDIA_ASSETS[endingId];
+        if (endingVideo && assets && assets.video) {
+            endingVideo.src = assets.video;
+            endingVideo.load();
+            endingVideo.play().catch(e => console.log(e));
+        }
+        const audioElement = document.getElementById('global-audio-player');
+        if (audioElement && assets && assets.audio) {
+            audioElement.src = assets.audio;
+            audioElement.load();
+            audioElement.play().catch(e => console.log(e));
+        }
+
+        if (endingId === 'G_OVER') {
+            endTitle.innerText = "G_OVER : 임무 실패 (시스템 포맷)";
+            endDesc.innerHTML = `[SYSTEM FORMAT COMPLETE]<br><br>에이전트 폐기 또는 타임 아웃.<br>${customDesc}`;
+            endTitle.className = "black-han text-5xl text-red-500 drop-shadow-[0_0_15px_rgba(255,51,51,0.6)]";
+        } else if (endingId === 'END_A') {
+            endTitle.innerText = "END_A : 용왕 구원 / 희생 엔딩";
+            endDesc.innerText = customDesc;
+            endTitle.className = "black-han text-5xl text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]";
+        } else if (endingId === 'END_B') {
+            endTitle.innerText = "END_B : 공존 상생 / 최적 엔딩";
+            endDesc.innerText = customDesc;
+            endTitle.className = "black-han text-5xl text-emerald-400 drop-shadow-[0_0_15px_rgba(0,255,102,0.6)]";
+        } else if (endingId === 'END_C') {
+            endTitle.innerText = "END_C : 진실 폭로 / 철학적 엔딩";
+            endDesc.innerText = customDesc;
+            endTitle.className = "black-han text-5xl text-purple-400 drop-shadow-[0_0_15px_rgba(188,0,254,0.6)]";
+        }
+
+        if (endingScreen) {
+            endingScreen.classList.remove('hidden');
+        }
+    }
+
+    function updateHUD() {
+        const syncGauge = document.getElementById('gauge-syncRate');
+        const syncVal = document.getElementById('stat-syncRate-val');
+        if (syncGauge) syncGauge.style.width = gameState.sync + '%';
+        if (syncVal) syncVal.innerText = gameState.sync + '%';
+
+        const integGauge = document.getElementById('gauge-integrityLevel');
+        const integVal = document.getElementById('stat-integrityLevel-val');
+        if (integGauge) integGauge.style.width = gameState.integ + '%';
+        if (integVal) integVal.innerText = gameState.integ + '%';
+
+        const noiseGauge = document.getElementById('gauge-noiseLevel');
+        const noiseVal = document.getElementById('stat-noiseLevel-val');
+        if (noiseGauge) noiseGauge.style.width = gameState.noise + '%';
+        if (noiseVal) noiseVal.innerText = gameState.noise + '%';
+
+        const turnVal = document.getElementById('stat-turn-val');
+        if (turnVal) turnVal.innerText = gameState.turn + ' T';
+
+        const analysisVal = document.getElementById('stat-analysis-val');
+        if (analysisVal) analysisVal.innerText = gameState.genetic_analysis + '%';
+    }
+
+    async function typeText(element, text) {
+        if (!element) return;
+        gameState.isTyping = true;
+        element.innerHTML = "";
+        const temp = document.createElement('div');
+        temp.innerHTML = text;
+        const nodes = Array.from(temp.childNodes);
+        
+        for (const node of nodes) {
+            if (node.nodeType === 3) {
+                for (let char of node.textContent) {
+                    element.innerHTML += char;
+                    await new Promise(r => setTimeout(r, 8));
+                }
+            } else {
+                element.appendChild(node.cloneNode(true));
+            }
+        }
+        gameState.isTyping = false;
+        element.scrollTop = 0;
+    }
+
+    function triggerImpact() {
+        const mainBody = document.getElementById('main-body');
+        if (mainBody) {
+            mainBody.classList.remove('spring-active');
+            void mainBody.offsetWidth;
+            mainBody.classList.add('spring-active');
+        }
+    }
+
+    function renderScene(sid) {
+        if (sid === 'IMMEDIATE_DESTRUCTION') {
+            triggerEnding('G_OVER', "요격 트리거 격발: 스텔스 요건(SYNC >= 90 또는 NOISE < 50) 미달 상태에서 침투를 강행하여, 방어 격벽의 레이저 무기에 의해 의체 중앙 CPU가 즉각 폭파 및 증발되었습니다.");
+            return;
+        }
+        if (sid === 'DETERMINE_ENDING') {
+            determineFinalEnding();
+            return;
+        }
+
+        const scene = scenes[sid];
+        if (!scene) return;
+
+        updateHUD();
+        if (checkSystemStatus()) return;
+
+        // 미디어 동기화 엔진 작동
+        playSceneMedia(sid);
+
+        const desc = typeof scene.getDesc === 'function' ? scene.getDesc() : scene.desc;
+        const choices = typeof scene.getChoices === 'function' ? scene.getChoices() : scene.choices;
+
+        const sceneTitleEl = document.getElementById('scene-title');
+        const imagePlaceholderEl = document.getElementById('image-placeholder');
+        const gameTextEl = document.getElementById('game-text');
+
+        if (sceneTitleEl) sceneTitleEl.innerText = scene.title;
+        if (imagePlaceholderEl) imagePlaceholderEl.innerText = `[CONNECTED_IMAGE_FEED: ${scene.img}]`;
+        
+        typeText(gameTextEl, desc);
+
+        const choiceArea = document.getElementById('choices-container');
+        if (choiceArea) {
+            choiceArea.innerHTML = "";
+            
+            choices.forEach((c, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "btn-biotech sharp-edge flex items-center justify-between w-full h-[6.5vh] px-3 py-2 transition-all duration-300";
+                
+                if (idx === 0) {
+                    btn.style.borderColor = "rgba(0, 255, 102, 0.45)";
+                    btn.style.color = "var(--toxic-green)";
+                } else if (idx === 1) {
+                    btn.style.borderColor = "rgba(188, 0, 255, 0.45)";
+                    btn.style.color = "var(--electric-purple)";
+                } else if (c.special) {
+                    btn.classList.add('btn-hidden-purple');
+                }
+
+                const txt = document.createElement('span');
+                txt.innerText = c.text;
+                btn.appendChild(txt);
+
+                const badges = document.createElement('div');
+                badges.className = "stat-badges flex-shrink-0";
+                if (c.delta) {
+                    if (c.delta.sync) badges.innerHTML += `<span class="badge badge-sync">SYNC ${c.delta.sync > 0 ? '+' : ''}${c.delta.sync}</span>`;
+                    if (c.delta.noise) badges.innerHTML += `<span class="badge badge-noise">NOISE ${c.delta.noise > 0 ? '+' : ''}${c.delta.noise}</span>`;
+                    if (c.delta.integ) badges.innerHTML += `<span class="badge badge-integrity">INTEG ${c.delta.integ > 0 ? '+' : ''}${c.delta.integ}</span>`;
+                }
+                btn.appendChild(badges);
+
+                btn.onclick = () => {
+                    if (gameState.isTyping || gameState.isTransitioning) return;
+                    
+                    gameState.isTransitioning = true;
+                    btn.classList.add('btn-selected');
+                    triggerImpact();
+                    
+                    if (c.action) c.action();
+                    if (c.delta) {
+                        Object.entries(c.delta).forEach(([k, v]) => {
+                            gameState[k] = Math.max(0, Math.min(100, gameState[k] + v));
+                        });
+                    }
+                    updateHUD();
+
+                    setTimeout(() => {
+                        btn.classList.remove('btn-selected');
+                        gameState.isTransitioning = false;
+                        renderScene(c.next);
+                    }, 600);
+                };
+                choiceArea.appendChild(btn);
+            });
+        }
+    }
+
+    function startGame() {
+        const intro = document.getElementById('intro-screen');
+        const ui = document.getElementById('game-ui');
+        
+        // 크롬/사파리 미디어 인터랙션 오디오 활성화 컨텍스트 처리
+        const audioContextActivation = document.getElementById('global-audio-player');
+        if (audioContextActivation) {
+            audioContextActivation.play().catch(() => {
+                // 더미 공백 스트림 연동 패스
+            });
+        }
+
+        if (intro) intro.classList.add('hidden');
+        if (ui) ui.classList.remove('hidden');
+        renderScene('S1');
+    }
+</script>
+</body>
+</html>
